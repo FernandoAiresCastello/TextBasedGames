@@ -1,13 +1,10 @@
-
-const EngineGui = {
-    Colors: [],
-    ButtonRows: 0,
-    ButtonCols: 0,
-    ActiveButtonForeColor: 1,
-    ActiveButtonBackColor: 15,
-    InactiveButtonForeColor: 15,
-    InactiveButtonBackColor: 14
-};
+//=============================================================================
+//
+//      TEXT GAME ENGINE
+//
+//      2019 Programmed by Fernando Aires Castello
+//
+//=============================================================================
 
 function enginePrintln(html) {
     enginePrint(html + '<br/>');
@@ -37,68 +34,64 @@ function engineSetButton(number, text, onclick) {
         button.click(null);
     }
 
-    engineUpdateButtonCss();
+    _engineUpdateButtonCss();
 }
 
 function engineHideAllButtons() {
-    for (let i = 0; i < EngineGui.ButtonRows * EngineGui.ButtonCols; i++) {
+    for (let i = 0; i < _EngineGui.ButtonRows * _EngineGui.ButtonCols; i++) {
         engineSetButton(i, null);
     }
 }
 
-function engineInit(windowTitle, gameTitle, buttonRows, buttonCols) {
+function engineInit(initOptions) {
 
-    EngineGui.ButtonRows = buttonRows;
-    EngineGui.ButtonCols = buttonCols;
-
-    engineInitDocumentBody();
-    engineInitColors();
-    engineInitButtons();
-    engineSetWindowTitle(windowTitle);
-    engineSetGameTitle(gameTitle);
-}
-
-function engineInitButtons() {
-    let buttonNumber = 0;
-    const table = $('.buttons-table');
-    for (let row = 0; row < EngineGui.ButtonRows; row++) {
-        let rowHtml = '';
-        rowHtml += '<tr>';
-        for (let col = 0; col < EngineGui.ButtonCols; col++) {
-            rowHtml += '<td>';
-            rowHtml += '<button id="button-' + buttonNumber + '">Button ' + buttonNumber + '</button>';
-            rowHtml += '</td>';
-            buttonNumber++;
-        }
-        rowHtml += '</tr>';
-        table.append(rowHtml);
+    if (!(initOptions.buttonCols && initOptions.buttonRows &&
+        initOptions.windowTitle && initOptions.gameTitle)) {
+        _engineError('engineInit: invalid initOptions');
     }
 
-    $('.buttons-table td').css('width', 100 / EngineGui.ButtonCols + '%');
+    _EngineGui.ButtonRows = initOptions.buttonRows;
+    _EngineGui.ButtonCols = initOptions.buttonCols;
 
-    engineHideAllButtons();
-}
-
-function engineUpdateButtonCss() {
-    const activeButtons = $('.buttons-table button.active');
-    const inactiveButtons = $('.buttons-table button.inactive');
-
-    activeButtons.css('color', engineColor(EngineGui.ActiveButtonForeColor));
-    activeButtons.css('background', engineColor(EngineGui.ActiveButtonBackColor));
-    inactiveButtons.css('color', engineColor(EngineGui.InactiveButtonForeColor));
-    inactiveButtons.css('background', engineColor(EngineGui.InactiveButtonBackColor));
+    engineInitColors();
+    _engineInitDocumentBody();
+    _engineInitButtons();
+    engineSetWindowTitle(initOptions.windowTitle);
+    engineSetGameTitle(initOptions.gameTitle);
 }
 
 function engineSetButtonsActiveColor(forecolor, backcolor) {
-    EngineGui.ActiveButtonForeColor = forecolor;
-    EngineGui.ActiveButtonBackColor = backcolor;
-    engineUpdateButtonCss();
+    _EngineGui.ActiveButtonForeColor = forecolor;
+    _EngineGui.ActiveButtonBackColor = backcolor;
+    _engineUpdateButtonCss();
+}
+
+function engineSetButtonsHoverColor(forecolor, backcolor) {
+    _EngineGui.HoverButtonForeColor = forecolor;
+    _EngineGui.HoverButtonBackColor = backcolor;
+    _engineUpdateButtonCss();
 }
 
 function engineSetButtonsInactiveColor(forecolor, backcolor) {
-    EngineGui.InactiveButtonForeColor = forecolor;
-    EngineGui.InactiveButtonBackColor = backcolor;
-    engineUpdateButtonCss();
+    _EngineGui.InactiveButtonForeColor = forecolor;
+    _EngineGui.InactiveButtonBackColor = backcolor;
+    _engineUpdateButtonCss();
+}
+
+function engineSetTitlePanelColor(forecolor, backcolor) {
+    engineSetPanelColor('title-panel', forecolor, backcolor);
+}
+
+function engineSetSidePanelColor(forecolor, backcolor) {
+    engineSetPanelColor('side-panel', forecolor, backcolor);
+}
+
+function engineSetOutputPanelColor(forecolor, backcolor) {
+    engineSetPanelColor('out-panel', forecolor, backcolor);
+}
+
+function engineSetInputPanelColor(forecolor, backcolor) {
+    engineSetPanelColor('in-panel', forecolor, backcolor);
 }
 
 function engineSetPanelColor(panelClass, forecolor, backcolor) {
@@ -116,7 +109,7 @@ function engineSetBorderColor(borderColor) {
 }
 
 function engineColor(index) {
-    return EngineGui.Colors[index];
+    return _EngineGui.Colors[index];
 }
 
 function engineInitColors() {
@@ -140,11 +133,11 @@ function engineInitColors() {
 }
 
 function engineAddColor(color) {
-    EngineGui.Colors.push(color);
+    _EngineGui.Colors.push(color);
 }
 
 function engineClearColors() {
-    EngineGui.Colors = [];
+    _EngineGui.Colors = [];
 }
 
 function engineSetGameTitle(title) {
@@ -155,32 +148,87 @@ function engineSetWindowTitle(title) {
     $('title').html(title);
 }
 
-function engineInitDocumentBody() {
-    $('body').append(buildDocumentBody());
+//=============================================================================
+//      PRIVATE API
+//=============================================================================
+
+const _EngineGui = {
+    Colors: [],
+    ButtonRows: 0,
+    ButtonCols: 0,
+    ActiveButtonForeColor: 1,
+    ActiveButtonBackColor: 15,
+    HoverButtonForeColor: 1,
+    HoverButtonBackColor: 15,
+    InactiveButtonForeColor: 15,
+    InactiveButtonBackColor: 14
+};
+
+function _engineUpdateButtonCss() {
+    const activeButtons = $('.buttons-table button.active');
+    const inactiveButtons = $('.buttons-table button.inactive');
+
+    activeButtons.css('color', engineColor(_EngineGui.ActiveButtonForeColor));
+    activeButtons.css('background', engineColor(_EngineGui.ActiveButtonBackColor));
+    activeButtons.mouseleave(function() {
+        $(this).css('color', engineColor(_EngineGui.ActiveButtonForeColor));
+        $(this).css('background', engineColor(_EngineGui.ActiveButtonBackColor));
+    });
+    activeButtons.mouseenter(function() {
+        $(this).css('color', engineColor(_EngineGui.HoverButtonForeColor));
+        $(this).css('background', engineColor(_EngineGui.HoverButtonBackColor));
+    });
+
+    inactiveButtons.css('color', engineColor(_EngineGui.InactiveButtonForeColor));
+    inactiveButtons.css('background', engineColor(_EngineGui.InactiveButtonBackColor));
 }
 
-function buildDocumentBody() {
-    return `
+function _engineInitButtons() {
+    let buttonNumber = 0;
+    const table = $('.buttons-table');
+    for (let row = 0; row < _EngineGui.ButtonRows; row++) {
+        let rowHtml = '';
+        rowHtml += '<tr>';
+        for (let col = 0; col < _EngineGui.ButtonCols; col++) {
+            rowHtml += '<td>';
+            rowHtml += '<button id="button-' + buttonNumber + '">Button ' + buttonNumber + '</button>';
+            rowHtml += '</td>';
+            buttonNumber++;
+        }
+        rowHtml += '</tr>';
+        table.append(rowHtml);
+    }
+
+    $('.buttons-table td').css('width', 100 / _EngineGui.ButtonCols + '%');
+
+    engineHideAllButtons();
+}
+
+function _engineInitDocumentBody() {
+    $('body').append(`
         <div class="content">
-            <table class="panel-table">
-                <tr>
-                    <td class="title-panel" colspan="2">
-                    </td>
-                </tr>
-                <tr>
-                    <td class="out-panel">
-                        <div class="output"></div>
-                    </td>
-                    <td class="side-panel">
-                    </td>
-                </tr>
-                <tr>
-                    <td class="in-panel" colspan="2">
-                        <table class="buttons-table">
-                        </table>
-                    </td>
-                </tr>
-            </table>
+        <table class="panel-table">
+        <tr>
+            <td class="title-panel" colspan="2"></td>
+        </tr>
+        <tr>
+            <td class="out-panel">
+                <div class="output"></div>
+            </td>
+            <td class="side-panel"></td>
+        </tr>
+        <tr>
+            <td class="in-panel" colspan="2">
+                <table class="buttons-table"></table>
+            </td>
+        </tr>
+        </table>
         </div>
-    `
+    `);
+}
+
+function _engineError(text) {
+    const msg = 'TextGameEngine Error\n' + text;
+    alert(msg);
+    throw new Error(msg);
 }
