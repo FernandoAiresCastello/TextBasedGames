@@ -6,9 +6,67 @@
 //
 //=============================================================================
 
+const TXT_UNDEFINED_NAME = 'Undefined';
+const TXT_UNDEFINED_DESC = 'No description available.';
+
+class Player {
+    constructor() {
+        this.scene = null;
+    }
+}
+
+class World {
+    constructor() {
+        this.scenes = [];
+    }
+
+    findScene(name) {
+    }
+
+    findExit(sceneName, exitName) {
+    }
+
+    findGameObject(name) {
+    }
+
+    findNpc(name) {
+    }
+}
+
 class Scene {
     constructor() {
-        this.title = 'Undefined';
+        this.name = TXT_UNDEFINED_NAME;
+        this.description = TXT_UNDEFINED_DESC;
+        this.exits = [];
+        this.objects = [];
+        this.npcs = [];
+    }
+}
+
+class Exit {
+    constructor() {
+        this.name = TXT_UNDEFINED_NAME;
+        this.direction = 'Go to';
+        this.destination = null;
+    }
+}
+
+class GameObject {
+    constructor() {
+        this.name = TXT_UNDEFINED_NAME;
+        this.description = TXT_UNDEFINED_DESC;
+        this.visible = true;
+        this.takeable = false;
+        this.use = null;
+    }
+}
+
+class Npc {
+    constructor() {
+        this.name = TXT_UNDEFINED_NAME;
+        this.description = TXT_UNDEFINED_DESC;
+        this.objects = [];
+        this.speech = null;
     }
 }
 
