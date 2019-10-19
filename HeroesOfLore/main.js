@@ -10,28 +10,28 @@ $(document).ready(() => main());
 
 function main() {
 
-    engineInit({
+    const engine = new Engine({
         windowTitle: 'Heroes Of Lore',
         gameTitle: '\u2694 HEROES OF LORE \u2694',
         buttonRows: 4,
         buttonCols: 3
     });
 
-    engineSetBorderWidth(30);
-    engineSetBorderColor(4);
-    engineSetTitlePanelColor(15, 13);
-    engineSetSidePanelColor(15, 5);
-    engineSetOutputPanelColor(15, 5);
-    engineSetInputPanelColor(15, 13);
-    engineSetButtonsActiveColor(15, 6);
-    engineSetButtonsHoverColor(15, 8);
-    engineSetButtonsInactiveColor(15, 13);
+    engine.setBorderWidth(30);
+    engine.setBorderColor(Color.Blue);
+    engine.setTitlePanelColor(Color.White, Color.Magenta);
+    engine.setSidePanelColor(Color.White, Color.LightBlue);
+    engine.setOutputPanelColor(Color.White, Color.LightBlue);
+    engine.setInputPanelColor(Color.White, Color.Magenta);
+    engine.setButtonsActiveColor(Color.White, Color.DarkRed);
+    engine.setButtonsHoverColor(Color.White, Color.Red);
+    engine.setButtonsInactiveColor(Color.White, Color.Magenta);
 
-    engineSetButton(0, 'Say hello', () => {
-        enginePrintln('Hello world!');
+    engine.setButton(0, 'Say hello', () => {
+        engine.println('Hello world!');
     });
 
-    engineSetButton(1, 'Clear', () => {
-        engineClearOutput();
+    engine.setButton(1, 'Clear', () => {
+        engine.clearOutput();
     });
 }

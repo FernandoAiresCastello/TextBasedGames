@@ -62,3 +62,11 @@ body {
     border-radius: 5px;
     box-shadow: 2px 2px rgba(0, 0, 0, 0.5);
 }
+
+.buttons-table button:active {
+    box-shadow: -1px -1px rgba(0, 0, 0, 0.5);
+}
+
+.buttons-table button:focus {
+    outline: none;
+}
