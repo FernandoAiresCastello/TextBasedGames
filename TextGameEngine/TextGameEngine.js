@@ -6,12 +6,11 @@
 //
 //=============================================================================
 
-const TXT_UNDEFINED_NAME = 'Undefined';
-const TXT_UNDEFINED_DESC = 'No description available.';
-
 class Player {
     constructor() {
         this.scene = null;
+        this.states = new States();
+        this.objects = [];
     }
 }
 
@@ -20,15 +19,62 @@ class World {
         this.scenes = [];
     }
 
+    addScene(scene) {
+        this.scenes.push(scene);
+    }
+
     getScene(name) {
+        for (let i = 0; i < this.scenes.length; i++) {
+            const scene = this.scenes[i];
+            if (scene.name === name) {
+                return scene;
+            }
+        }
+        return null;
+    }
+}
+
+class States {
+    constructor() {
+        this.states = [];
+    }
+
+    add(state) {
+        this.states.push(state);
+    }
+
+    remove(state) {
+        let index = null;
+        for (let i = 0; i < this.states.length; i++) {
+            if (state === this.states[i]) {
+                index = i;
+                break;
+            }
+        }
+        if (index) {
+            this.states.splice(index, 1);
+        }
+    }
+
+    has(state) {
+        for (let i = 0; i < this.states.length; i++) {
+            if (state === this.states[i]) {
+                return true;
+            }
+        }
+        return false;
     }
 }
 
 class Scene {
     constructor() {
-        this.name = TXT_UNDEFINED_NAME;
-        this.description = TXT_UNDEFINED_DESC;
+        this.name = 'Undefined';
+        this.description = 'No description available.';
+        this.states = new States();
         this.commands = [];
+        this.objects = [];
+        this.characters = [];
+        this.exits = [];
     }
 
     executeCommand(commandText) {
@@ -36,6 +82,10 @@ class Scene {
         if (command) {
             command.execute();
         }
+    }
+
+    addCommand(text, func) {
+        this.commands.push(new Command(text, func));
     }
 
     getCommand(commandText) {
@@ -46,6 +96,36 @@ class Scene {
             }
         }
         return null;
+    }
+}
+
+class Exit {
+    constructor(direction, goFunction) {
+        this.direction = direction;
+        this.goFunction = goFunction;
+        this.visible = true;
+    }
+}
+
+class Character {
+    constructor(name, lookFunction, talkFunction, attackFunction) {
+        this.name = name;
+        this.states = new States();
+        this.lookFunction = lookFunction;
+        this.talkFunction = talkFunction;
+        this.attackFunction = attackFunction;
+        this.visible = true;
+    }
+}
+
+class GameObject {
+    constructor(name, lookFunction, useFunction, takeFunction) {
+        this.name = name;
+        this.states = new States();
+        this.lookFunction = lookFunction;
+        this.useFunction = useFunction;
+        this.takeFunction = takeFunction;
+        this.visible = true;
     }
 }
 
@@ -63,6 +143,8 @@ class Command {
 class Engine {
     constructor(initOptions) {
         this.init(initOptions);
+        this.world = new World();
+        this.player = new Player();
     }
 
     interpretCommand() {
@@ -72,7 +154,7 @@ class Engine {
 
         if (command) {
             this.println(command);
-        }        
+        }
     }
 
     println(html) {
@@ -88,7 +170,6 @@ class Engine {
     }
     
     init(initOptions) {
-    
         if (!(initOptions.windowTitle && initOptions.gameTitle)) {
             this._error('engineInit: invalid initOptions');
         }
