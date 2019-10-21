@@ -9,7 +9,7 @@ body {
     border-collapse: collapse;
 }
 
-.panel-table, .buttons-table button {
+.panel-table, .input-table button, .input-table input[type="text"] {
     font-weight: normal;
     font-family: 'Consolas', 'Courier New', 'Courier', monospace;
     font-size: 16px;
@@ -45,16 +45,16 @@ body {
     width: 40%
 }
 
-.buttons-table {
+.input-table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.buttons-table td {
+.input-table td {
     padding: 4px;
 }
 
-.buttons-table button {
+.input-table button {
     width: 100%;
     cursor: pointer;
     padding: 5px;
@@ -63,10 +63,25 @@ body {
     box-shadow: 2px 2px rgba(0, 0, 0, 0.5);
 }
 
-.buttons-table button:active {
+.input-table button:active {
     box-shadow: -1px -1px rgba(0, 0, 0, 0.5);
 }
 
-.buttons-table button:focus {
+.input-table button:focus, .input-table input[type="text"]:focus {
     outline: none;
+}
+
+.input-table input[type="text"] {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+}
+
+.input-table td.input-field-col {
+    padding-right: 10px;
+}
+
+.input-table td.send-button-col {
+    width: 20%;
 }

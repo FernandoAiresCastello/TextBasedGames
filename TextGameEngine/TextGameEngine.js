@@ -20,16 +20,7 @@ class World {
         this.scenes = [];
     }
 
-    findScene(name) {
-    }
-
-    findExit(sceneName, exitName) {
-    }
-
-    findGameObject(name) {
-    }
-
-    findNpc(name) {
+    getScene(name) {
     }
 }
 
@@ -37,42 +28,51 @@ class Scene {
     constructor() {
         this.name = TXT_UNDEFINED_NAME;
         this.description = TXT_UNDEFINED_DESC;
-        this.exits = [];
-        this.objects = [];
-        this.npcs = [];
+        this.commands = [];
+    }
+
+    executeCommand(commandText) {
+        const command = this.getCommand(commandText);
+        if (command) {
+            command.execute();
+        }
+    }
+
+    getCommand(commandText) {
+        for (let i = 0; i < this.commands.length; i++) {
+            const command = this.commands[i];
+            if (commandText === command.text) {
+                return command;
+            }
+        }
+        return null;
     }
 }
 
-class Exit {
-    constructor() {
-        this.name = TXT_UNDEFINED_NAME;
-        this.direction = 'Go to';
-        this.destination = null;
+class Command {
+    constructor(text, func) {
+        this.text = text;
+        this.func = func;
     }
-}
 
-class GameObject {
-    constructor() {
-        this.name = TXT_UNDEFINED_NAME;
-        this.description = TXT_UNDEFINED_DESC;
-        this.visible = true;
-        this.takeable = false;
-        this.use = null;
-    }
-}
-
-class Npc {
-    constructor() {
-        this.name = TXT_UNDEFINED_NAME;
-        this.description = TXT_UNDEFINED_DESC;
-        this.objects = [];
-        this.speech = null;
+    execute() {
+        this.func();
     }
 }
 
 class Engine {
     constructor(initOptions) {
         this.init(initOptions);
+    }
+
+    interpretCommand() {
+        const inputField = $('#input-field');
+        const command = inputField.val().trim();
+        inputField.val('');
+
+        if (command) {
+            this.println(command);
+        }        
     }
 
     println(html) {
@@ -87,45 +87,26 @@ class Engine {
         $('.output').html('');
     }
     
-    setButton(number, text, onclick) {
-        const button = $('#button-' + number);
-    
-        if (text) {
-            button.html(text);
-            button.removeClass('inactive');
-            button.addClass('active');
-            button.click(onclick);
-        }
-        else {
-            button.html('&nbsp;');
-            button.removeClass('active');
-            button.addClass('inactive');
-            button.click(null);
-        }
-    
-        this._updateButtonCss();
-    }
-    
-    hideAllButtons() {
-        for (let i = 0; i < this._gui.ButtonRows * this._gui.ButtonCols; i++) {
-            this.setButton(i, null);
-        }
-    }
-    
     init(initOptions) {
     
-        if (!(initOptions.buttonCols && initOptions.buttonRows &&
-            initOptions.windowTitle && initOptions.gameTitle)) {
+        if (!(initOptions.windowTitle && initOptions.gameTitle)) {
             this._error('engineInit: invalid initOptions');
         }
     
-        this._gui.ButtonRows = initOptions.buttonRows;
-        this._gui.ButtonCols = initOptions.buttonCols;
-    
         this._initDocumentBody();
-        this._initButtons();
         this.setWindowTitle(initOptions.windowTitle);
         this.setGameTitle(initOptions.gameTitle);
+
+        $('#input-field').keydown((e) => {
+            if (e.key === "Enter") {
+                this.interpretCommand();
+                e.preventDefault();
+            }
+        });
+
+        $('#send-button').click(() => {
+            this.interpretCommand();
+        });
     }
     
     setButtonsActiveColor(forecolor, backcolor) {
@@ -143,6 +124,12 @@ class Engine {
     setButtonsInactiveColor(forecolor, backcolor) {
         this._gui.InactiveButtonForeColor = forecolor;
         this._gui.InactiveButtonBackColor = backcolor;
+        this._updateButtonCss();
+    }
+
+    setInputFieldColor(forecolor, backcolor) {
+        this._gui.InputFieldForeColor = forecolor;
+        this._gui.InputFieldBackColor = backcolor;
         this._updateButtonCss();
     }
     
@@ -189,55 +176,35 @@ class Engine {
     //=========================================================================
 
     _gui = {
-        ButtonRows: 0,
-        ButtonCols: 0,
         ActiveButtonForeColor: Color.Black,
         ActiveButtonBackColor: Color.White,
         HoverButtonForeColor: Color.Black,
         HoverButtonBackColor: Color.White,
         InactiveButtonForeColor: Color.White,
-        InactiveButtonBackColor: Color.Gray
+        InactiveButtonBackColor: Color.Gray,
+        InputFieldForeColor: Color.Black,
+        InputFieldBackColor: Color.White
     };
     
     _updateButtonCss() {
-        const activeButtons = $('.buttons-table button.active');
-        const inactiveButtons = $('.buttons-table button.inactive');
+        const buttons = $('.input-table button');
     
-        activeButtons.css('color', this._gui.ActiveButtonForeColor);
-        activeButtons.css('background', this._gui.ActiveButtonBackColor);
+        buttons.css('color', this._gui.ActiveButtonForeColor);
+        buttons.css('background', this._gui.ActiveButtonBackColor);
 
-        activeButtons.on('mouseleave', (event) => {
+        buttons.on('mouseleave', (event) => {
             $(event.target).css('color', this._gui.ActiveButtonForeColor);
             $(event.target).css('background', this._gui.ActiveButtonBackColor);
         });
-        activeButtons.on('mouseenter', (event) => {
+        buttons.on('mouseenter', (event) => {
             $(event.target).css('color', this._gui.HoverButtonForeColor);
             $(event.target).css('background', this._gui.HoverButtonBackColor);
         });
-    
-        inactiveButtons.css('color', this._gui.InactiveButtonForeColor);
-        inactiveButtons.css('background', this._gui.InactiveButtonBackColor);
-    }
-    
-    _initButtons() {
-        let buttonNumber = 0;
-        const table = $('.buttons-table');
-        for (let row = 0; row < this._gui.ButtonRows; row++) {
-            let rowHtml = '';
-            rowHtml += '<tr>';
-            for (let col = 0; col < this._gui.ButtonCols; col++) {
-                rowHtml += '<td>';
-                rowHtml += '<button id="button-' + buttonNumber + '">Button ' + buttonNumber + '</button>';
-                rowHtml += '</td>';
-                buttonNumber++;
-            }
-            rowHtml += '</tr>';
-            table.append(rowHtml);
-        }
-    
-        $('.buttons-table td').css('width', 100 / this._gui.ButtonCols + '%');
-    
-        this.hideAllButtons();
+
+        const inputField = $('.input-table input[type="text"]');
+
+        inputField.css('color', this._gui.InputFieldForeColor);
+        inputField.css('background', this._gui.InputFieldBackColor);
     }
     
     _initDocumentBody() {
@@ -255,7 +222,16 @@ class Engine {
             </tr>
             <tr>
                 <td class="in-panel" colspan="2">
-                    <table class="buttons-table"></table>
+                    <table class="input-table">
+                        <tr>
+                            <td class="input-field-col">
+                                <input id="input-field" type="text"></input>
+                            </td>
+                            <td class="send-button-col">
+                                <button id="send-button">Send command</button>
+                            </td>
+                        </tr>
+                    </table>
                 </td>
             </tr>
             </table>

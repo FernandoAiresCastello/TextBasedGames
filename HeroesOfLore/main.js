@@ -26,12 +26,5 @@ function main() {
     engine.setButtonsActiveColor(Color.White, Color.DarkRed);
     engine.setButtonsHoverColor(Color.White, Color.Red);
     engine.setButtonsInactiveColor(Color.White, Color.Magenta);
-
-    engine.setButton(0, 'Say hello', () => {
-        engine.println('Hello world!');
-    });
-
-    engine.setButton(1, 'Clear', () => {
-        engine.clearOutput();
-    });
+    engine.setInputFieldColor(Color.White, Color.LightBlue);
 }
